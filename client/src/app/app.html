@@ -1,0 +1,206 @@
+
+<div class="min-h-screen bg-slate-950 px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+
+  <div class="mx-auto max-w-6xl">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-indigo-400">
+        Habit Tracker
+      </p>
+
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+        Users & Habits
+      </h1>
+
+      <p class="mt-2 text-slate-400">
+        Data fetched directly from the API
+      </p>
+    </div>
+
+
+    <!-- Users -->
+    <div class="space-y-8">
+
+      @for (user of arr(); track user.userId) {
+
+        <!-- User Card -->
+        <section
+          class="overflow-hidden rounded-3xl border border-slate-800
+                 bg-slate-900 shadow-xl"
+        >
+
+          <!-- User Header -->
+          <div
+            class="flex flex-col gap-5 border-b border-slate-800
+                   p-6 sm:flex-row sm:items-center sm:justify-between"
+          >
+
+            <div class="flex items-center gap-4">
+
+              <!-- Avatar -->
+              <div
+                class="flex h-14 w-14 items-center justify-center
+                       rounded-2xl bg-indigo-500/10 text-xl font-bold
+                       text-indigo-400"
+              >
+                {{ user.userName.charAt(0) }}
+              </div>
+
+              <div>
+                <h2 class="text-xl font-bold">
+                  {{ user.userName }}
+                </h2>
+
+                <p class="text-sm text-slate-400">
+                  {{ user.email }}
+                </p>
+              </div>
+
+            </div>
+
+
+            <!-- Account Status -->
+            <span
+              class="w-fit rounded-full px-3 py-1.5 text-xs font-semibold"
+              [class]="user.isActive
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'bg-red-500/10 text-red-400'"
+            >
+              {{ user.isActive ? '● Active' : '● Inactive' }}
+            </span>
+
+          </div>
+
+
+          <!-- User Info -->
+          <div class="grid gap-4 border-b border-slate-800 p-6 sm:grid-cols-3">
+
+            <div>
+              <p class="text-xs uppercase tracking-wide text-slate-500">
+                User ID
+              </p>
+
+              <p class="mt-1 font-medium">
+                #{{ user.userId }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs uppercase tracking-wide text-slate-500">
+                Habits
+              </p>
+
+              <p class="mt-1 font-medium">
+                {{ user.habits.length }}
+              </p>
+            </div>
+
+            <div>
+              <p class="text-xs uppercase tracking-wide text-slate-500">
+                Created
+              </p>
+
+              <p class="mt-1 font-medium text-slate-300">
+                {{ user.createdAt | date:'MMM d, yyyy' }}
+              </p>
+            </div>
+
+          </div>
+
+
+          <!-- Habits -->
+          <div class="p-6">
+
+            <div class="mb-5 flex items-center justify-between">
+
+              <div>
+                <h3 class="text-lg font-semibold">
+                  Habits
+                </h3>
+
+                <p class="text-sm text-slate-500">
+                  {{ user.habits.length }} total habits
+                </p>
+              </div>
+
+            </div>
+
+
+            <!-- Habit Grid -->
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+              @for (habit of user.habits; track habit.habitId) {
+
+                <div
+                  class="rounded-2xl border border-slate-800 bg-slate-950/60
+                         p-5 transition duration-200
+                         hover:-translate-y-1
+                         hover:border-indigo-500/30"
+                >
+
+                  <!-- Habit Top -->
+                  <div class="mb-4 flex items-start justify-between">
+
+                    <div
+                      class="flex h-10 w-10 items-center justify-center
+                             rounded-xl bg-indigo-500/10 text-indigo-400"
+                    >
+                      ✓
+                    </div>
+
+                    <span
+                      class="rounded-full px-2.5 py-1 text-xs font-medium"
+                      [class]="habit.isArchived
+                        ? 'bg-slate-800 text-slate-400'
+                        : 'bg-emerald-500/10 text-emerald-400'"
+                    >
+                      {{ habit.isArchived ? 'Archived' : 'Active' }}
+                    </span>
+
+                  </div>
+
+
+                  <!-- Habit Name -->
+                  <h4 class="font-semibold">
+                    {{ habit.habitName }}
+                  </h4>
+
+
+                  <!-- Description -->
+                  <p class="mt-2 text-sm leading-6 text-slate-400">
+                    {{ habit.description }}
+                  </p>
+
+
+                  <!-- Frequency -->
+                  <div
+                    class="mt-5 flex items-center justify-between
+                           border-t border-slate-800 pt-4"
+                  >
+                    <span class="text-xs text-slate-500">
+                      Frequency
+                    </span>
+
+                    <span class="text-sm font-medium text-slate-300">
+                      Type {{ habit.frequencyTypeId }}
+                    </span>
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+    </div>
+
+  </div>
+
+</div>
