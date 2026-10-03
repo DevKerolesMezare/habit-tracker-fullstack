@@ -44,7 +44,8 @@ namespace API.Data.Migrations
                     UserID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "varbinary(250)", maxLength: 250, nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)

@@ -9,8 +9,9 @@ public partial class User
 
     public string UserName { get; set; } = null!;
 
-    public string PasswordHash { get; set; } = null!;
-
+    public required byte[] PasswordHash { get; set; }
+    public required byte[] PasswordSalt { get; set; }
+    
     public string Email { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
