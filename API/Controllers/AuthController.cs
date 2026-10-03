@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using API.Data.Models;
@@ -52,6 +53,26 @@ public class AuthController(DataContext context, ITokenService tokenService) : B
         return user.ToDto(tokenService);
     }
 
+    [HttpGet("user-info")]
+    public async Task<ActionResult<AuthResponseDTO>> GetUserInfo()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+            return Unauthorized();
+
+        var user = await context.Users.FindAsync(int.Parse(userId));
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(new
+        {
+            user.UserId,
+            user.UserName,
+            user.Email
+        });
+    }
 
     public async Task<bool> EmailExists(string email)
     {

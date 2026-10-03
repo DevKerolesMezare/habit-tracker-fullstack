@@ -1,0 +1,170 @@
+<div class="min-h-[calc(100vh-5rem)] bg-slate-50">
+  <div class="flex min-h-[calc(100vh-5rem)] items-center justify-center px-6">
+    <div class="w-full max-w-lg">
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-md">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="mb-8 text-center">
+            <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Create an account</h1>
+            <p class="mt-2 text-base text-slate-500">Sign up to start using HabitTracker</p>
+          </div>
+
+          <!-- Username -->
+          <div class="mb-5">
+            <label for="userName" class="mb-2 block text-sm font-medium text-slate-700">
+              Username
+            </label>
+
+            <input
+              id="userName"
+              formControlName="userName"
+              type="text"
+              placeholder="Enter your username"
+              class="h-12 w-full rounded-lg border bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-blue-100"
+              [class.border-slate-300]="
+                !registerForm.controls.userName.touched || registerForm.controls.userName.valid
+              "
+              [class.border-red-500]="
+                registerForm.controls.userName.touched && registerForm.controls.userName.invalid
+              "
+            />
+
+            @if (
+              registerForm.controls.userName.touched &&
+              registerForm.controls.userName.hasError('required')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Username is required.</p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="mb-5">
+            <label for="email" class="mb-2 block text-sm font-medium text-slate-700">
+              Email address
+            </label>
+
+            <input
+              id="email"
+              formControlName="email"
+              type="email"
+              placeholder="name@example.com"
+              class="h-12 w-full rounded-lg border bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-blue-100"
+              [class.border-slate-300]="
+                !registerForm.controls.email.touched || registerForm.controls.email.valid
+              "
+              [class.border-red-500]="
+                registerForm.controls.email.touched && registerForm.controls.email.invalid
+              "
+            />
+
+            @if (
+              registerForm.controls.email.touched &&
+              registerForm.controls.email.hasError('required')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Email is required.</p>
+            }
+
+            @if (
+              registerForm.controls.email.touched && registerForm.controls.email.hasError('email')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Enter a valid email address.</p>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="mb-5">
+            <label for="password" class="mb-2 block text-sm font-medium text-slate-700">
+              Password
+            </label>
+
+            <input
+              id="password"
+              formControlName="password"
+              type="password"
+              placeholder="Enter your password"
+              class="h-12 w-full rounded-lg border bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-blue-100"
+              [class.border-slate-300]="
+                !registerForm.controls.password.touched || registerForm.controls.password.valid
+              "
+              [class.border-red-500]="
+                registerForm.controls.password.touched && registerForm.controls.password.invalid
+              "
+            />
+
+            @if (
+              registerForm.controls.password.touched &&
+              registerForm.controls.password.hasError('required')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Password is required.</p>
+            }
+
+            @if (
+              registerForm.controls.password.touched &&
+              registerForm.controls.password.hasError('minlength')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Password must be at least 6 characters.</p>
+            }
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-6">
+            <label for="confirmPassword" class="mb-2 block text-sm font-medium text-slate-700">
+              Confirm password
+            </label>
+
+            <input
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+              class="h-12 w-full rounded-lg border bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:ring-2 focus:ring-blue-100"
+              [class.border-slate-300]="
+                !registerForm.controls.confirmPassword.touched ||
+                (registerForm.controls.confirmPassword.valid &&
+                  !registerForm.hasError('passwordMismatch'))
+              "
+              [class.border-red-500]="
+                registerForm.controls.confirmPassword.touched &&
+                (registerForm.controls.confirmPassword.invalid ||
+                  registerForm.hasError('passwordMismatch'))
+              "
+            />
+
+            @if (
+              registerForm.controls.confirmPassword.touched &&
+              registerForm.controls.confirmPassword.hasError('required')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Please confirm your password.</p>
+            }
+
+            @if (
+              registerForm.controls.confirmPassword.touched &&
+              registerForm.hasError('passwordMismatch')
+            ) {
+              <p class="mt-1 text-sm text-red-500">Passwords do not match.</p>
+            }
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="registerForm.invalid"
+            class="h-12 w-full rounded-lg bg-slate-800 text-sm font-semibold text-white transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            Create account
+          </button>
+
+          <div class="mt-7 border-t border-slate-200 pt-6 text-center">
+            <p class="text-sm text-slate-500">
+              Already have an account?
+              <a
+                routerLink="/login"
+                class="ml-1 font-semibold text-blue-600 transition hover:text-blue-700"
+              >
+                Sign in
+              </a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

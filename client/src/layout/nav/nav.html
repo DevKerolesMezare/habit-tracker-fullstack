@@ -1,0 +1,97 @@
+<nav class="border-b border-slate-200 bg-white">
+  <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+
+    <!-- Logo -->
+    <a routerLink="/" class="flex items-center gap-3 text-slate-800">
+
+      <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800">
+        <svg
+          class="h-5 w-5 text-white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12.5l4 4L19 7" />
+        </svg>
+      </div>
+
+      <span class="font-sans text-xl font-semibold tracking-tight">
+        HabitTracker
+      </span>
+    </a>
+
+    <!-- Navigation -->
+    <div class="hidden items-center gap-8 md:flex">
+
+      <a
+        routerLink="/home"
+        routerLinkActive="text-slate-900"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
+      >
+        Home
+      </a>
+
+      <a
+        routerLink="/habits"
+        routerLinkActive="text-slate-900"
+        class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
+      >
+        Habits
+      </a>
+
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="text-slate-900"
+        class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
+      >
+        Dashboard
+      </a>
+
+    </div>
+
+    <!-- Authentication -->
+    <div class="hidden items-center gap-3 md:flex">
+
+      <a
+        routerLink="/login"
+        class="flex h-10 items-center rounded-lg px-4
+               text-base font-medium text-slate-600
+               transition hover:bg-slate-100 hover:text-slate-900"
+      >
+        Login
+      </a>
+
+      <a
+        routerLink="/register"
+        class="flex h-10 items-center rounded-lg
+               bg-slate-800 px-5
+               text-base font-medium text-white
+               transition hover:bg-slate-700"
+      >
+        Register
+      </a>
+
+    </div>
+
+    <!-- Mobile -->
+    <button
+      type="button"
+      class="text-slate-600 md:hidden"
+    >
+      <svg
+        class="h-6 w-6"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+  </div>
+</nav>
