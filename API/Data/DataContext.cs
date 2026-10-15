@@ -60,7 +60,7 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             entity.HasIndex(e => new { e.HabitId, e.CompletionDate }, "uq_Habit_CompletionDate").IsUnique();
 
             entity.Property(e => e.CompletionId).HasColumnName("CompletionID");
-            entity.Property(e => e.CompletionDate).HasColumnType("datetime");
+            entity.Property(e => e.CompletionDate).HasColumnType("date");
             entity.Property(e => e.HabitId).HasColumnName("HabitID");
             entity.Property(e => e.Notes).HasMaxLength(350);
             entity.Property(e => e.StatusId).HasColumnName("StatusID");

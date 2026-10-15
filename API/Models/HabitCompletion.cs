@@ -11,7 +11,7 @@ public partial class HabitCompletion
 
     public string? Notes { get; set; }
 
-    public DateTime? CompletionDate { get; set; }
+    public DateOnly CompletionDate { get; set; }
 
     public int StatusId { get; set; }
 

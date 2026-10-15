@@ -112,8 +112,8 @@ namespace API.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompletionId"));
 
-                    b.Property<DateTime?>("CompletionDate")
-                        .HasColumnType("datetime");
+                    b.Property<DateOnly>("CompletionDate")
+                        .HasColumnType("date");
 
                     b.Property<int>("HabitId")
                         .HasColumnType("int")
@@ -135,8 +135,7 @@ namespace API.Data.Migrations
                     b.HasIndex(new[] { "HabitId" }, "idx_HabitCompletions_HabitID");
 
                     b.HasIndex(new[] { "HabitId", "CompletionDate" }, "uq_Habit_CompletionDate")
-                        .IsUnique()
-                        .HasFilter("[CompletionDate] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("HabitCompletions");
                 });
