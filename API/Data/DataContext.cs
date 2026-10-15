@@ -117,6 +117,8 @@ public partial class DataContext(DbContextOptions<DataContext> options) : DbCont
             entity.Property(e => e.UserName).HasMaxLength(50);
         });
 
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(DataContext).Assembly);
     }
 
 }

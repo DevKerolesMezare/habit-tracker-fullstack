@@ -40,6 +40,23 @@ namespace API.Data.Migrations
                         .HasName("PK__Frequenc__829BB4DCA6980AEF");
 
                     b.ToTable("FrequencyTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            FrequencyTypeId = 1,
+                            FrequencyName = "Daily"
+                        },
+                        new
+                        {
+                            FrequencyTypeId = 2,
+                            FrequencyName = "Weekly"
+                        },
+                        new
+                        {
+                            FrequencyTypeId = 3,
+                            FrequencyName = "Monthly"
+                        });
                 });
 
             modelBuilder.Entity("API.Data.Models.Habit", b =>
@@ -168,6 +185,26 @@ namespace API.Data.Migrations
                         .HasName("PK__Status__C8EE2043A5F1AC3E");
 
                     b.ToTable("Status", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            StatusId = 1,
+                            ImpactScore = 1,
+                            StatusName = "Completed"
+                        },
+                        new
+                        {
+                            StatusId = 2,
+                            ImpactScore = 0,
+                            StatusName = "Partially Completed"
+                        },
+                        new
+                        {
+                            StatusId = 3,
+                            ImpactScore = -1,
+                            StatusName = "Missed"
+                        });
                 });
 
             modelBuilder.Entity("API.Data.Models.User", b =>
