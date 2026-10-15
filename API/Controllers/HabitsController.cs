@@ -51,16 +51,26 @@ public class HabitsController(
         return Ok(habit.ToDto());
     }
 
-
-
     [HttpPost]
     public async Task<ActionResult<HabitDto>> CreateHabit(
-        CreateHabitDto dto)
+     CreateHabitDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (!int.TryParse(userId, out var currentUserId))
             return Unauthorized();
+
+        var habitName = dto.HabitName.Trim();
+        var normalizedHabitName = habitName.ToLower();
+
+        // Prevent duplicate active habits for the same user.
+        var existingHabit = await repository.GetAsync(
+            h => h.UserId == currentUserId &&
+                 h.HabitName.ToLower() == normalizedHabitName &&
+                 h.IsArchived != true);
+
+        if (existingHabit is not null)
+            return Conflict("You already have a habit with this name.");
 
         var frequency = await frequencyRepository.GetAsync(
             f => f.FrequencyTypeId == dto.FrequencyTypeId);
@@ -71,7 +81,7 @@ public class HabitsController(
         var habit = new Habit
         {
             UserId = currentUserId,
-            HabitName = dto.HabitName,
+            HabitName = habitName,
             Description = dto.Description,
             FrequencyTypeId = dto.FrequencyTypeId,
             IsArchived = false
