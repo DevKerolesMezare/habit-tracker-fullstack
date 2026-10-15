@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using API.Data.Models;
+using API.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
@@ -37,4 +38,11 @@ public class GenericRepository<T>(DataContext context) : IGenericRepository<T> w
         context.Entry(entity).State = EntityState.Modified;
     }
 
+    public async Task<IReadOnlyList<T>> GetAllAsync(
+        Expression<Func<T, bool>> predicate)
+    {
+        return await context.Set<T>()
+            .Where(predicate)
+            .ToListAsync();
+    }
 }

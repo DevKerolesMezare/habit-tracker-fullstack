@@ -1,7 +1,7 @@
 
 using System.Linq.Expressions;
 
-namespace API.Repositories;
+namespace API.Repositories.Interfaces;
 
 public interface IGenericRepository<T> where T : class
 {
@@ -14,5 +14,8 @@ public interface IGenericRepository<T> where T : class
     void Delete(T entity);
 
     Task<bool> SaveChangesAsync();
+
+    Task<IReadOnlyList<T>> GetAllAsync(
+    Expression<Func<T, bool>> predicate);
 
 }
