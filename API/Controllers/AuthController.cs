@@ -5,65 +5,84 @@ using API.Data.Models;
 using API.DTOs.Auth;
 using API.Extensions;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-
-public class AuthController(DataContext context, ITokenService tokenService) : BaseApiController
+public class AuthController(
+    DataContext context,
+    ITokenService tokenService
+) : BaseApiController
 {
+    [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<AuthResponseDTO>> Register([FromBody] RegisterDto registerDto)
+    public async Task<ActionResult<AuthResponseDTO>> Register(
+        [FromBody] RegisterDto registerDto)
     {
-        if (await EmailExists(registerDto.Email)) return BadRequest("Email Taken");
+        var email = registerDto.Email.Trim().ToLowerInvariant();
 
-        var hmac = new HMACSHA512();
+        if (await EmailExists(email))
+            return BadRequest("Email already registered.");
+
+        using var hmac = new HMACSHA512();
 
         var user = new User
         {
-            UserName = registerDto.UserName,
-            Email = registerDto.Email,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+            UserName = registerDto.UserName.Trim(),
+            Email = email,
+            PasswordHash = hmac.ComputeHash(
+                Encoding.UTF8.GetBytes(registerDto.Password)),
             PasswordSalt = hmac.Key
         };
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return user.ToDto(tokenService);
+        return Ok(user.ToDto(tokenService));
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponseDTO>> Login([FromBody] LoginDto login)
+    public async Task<ActionResult<AuthResponseDTO>> Login(
+        [FromBody] LoginDto login)
     {
-        var user = await context.Users.SingleOrDefaultAsync(x => x.Email == login.Email);
+        var email = login.Email.Trim().ToLowerInvariant();
 
-        if (user == null) return Unauthorized("Invaild email address");
+        var user = await context.Users.SingleOrDefaultAsync(
+            x => x.Email.ToLower() == email);
+
+        if (user is null)
+            return Unauthorized("Invalid email or password.");
 
         using var hmac = new HMACSHA512(user.PasswordSalt);
 
-        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(login.Password));
+        var computedHash = hmac.ComputeHash(
+            Encoding.UTF8.GetBytes(login.Password));
 
-        for (var i = 0; i < computedHash.Length; i++)
+        // Compare hashes without an early exit on the first mismatch.
+        if (!CryptographicOperations.FixedTimeEquals(
+                computedHash, user.PasswordHash))
         {
-            if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
+            return Unauthorized("Invalid email or password.");
         }
 
-        return user.ToDto(tokenService);
+        return Ok(user.ToDto(tokenService));
     }
 
+    [Authorize]
     [HttpGet("user-info")]
     public async Task<ActionResult<AuthResponseDTO>> GetUserInfo()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (userId == null)
+        if (!int.TryParse(userId, out var currentUserId))
             return Unauthorized();
 
-        var user = await context.Users.FindAsync(int.Parse(userId));
+        var user = await context.Users.FindAsync(currentUserId);
 
-        if (user == null)
+        if (user is null)
             return NotFound();
 
         return Ok(new
@@ -74,8 +93,9 @@ public class AuthController(DataContext context, ITokenService tokenService) : B
         });
     }
 
-    public async Task<bool> EmailExists(string email)
+    private Task<bool> EmailExists(string email)
     {
-        return await context.Users.AnyAsync(x => x.Email.ToLower() == email.ToLower());
+        return context.Users.AnyAsync(
+            x => x.Email.ToLower() == email);
     }
 }
