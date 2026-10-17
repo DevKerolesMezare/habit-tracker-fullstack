@@ -15,8 +15,6 @@ public class HabitsController(
     IGenericRepository<FrequencyType> frequencyRepository
 ) : BaseApiController
 {
-
-
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<HabitDto>>> GetHabits()
     {
@@ -26,7 +24,8 @@ public class HabitsController(
             return Unauthorized();
 
         var habits = await repository.GetAllAsync(
-            h => h.UserId == currentUserId);
+            h => h.UserId == currentUserId &&
+                 h.IsArchived != true);
 
         var habitsDto = habits.Select(h => h.ToDto()).ToList();
 
@@ -107,7 +106,9 @@ public class HabitsController(
             return Unauthorized();
 
         var habit = await repository.GetAsync(
-            h => h.HabitId == id && h.UserId == currentUserId);
+            h => h.HabitId == id &&
+                 h.UserId == currentUserId &&
+                 h.IsArchived != true);
 
         if (habit is null)
             return NotFound();
@@ -126,7 +127,7 @@ public class HabitsController(
 
         return NoContent();
     }
-
+    
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> ArchiveHabit(int id)
