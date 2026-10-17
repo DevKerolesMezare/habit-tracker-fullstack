@@ -20,7 +20,7 @@ export class Register {
   private authService = inject(Auth);
   private router = inject(Router);
 
-  validationErrors = signal<string[] | null>(null);
+  errorMessage = signal('');
 
   registerForm = this.fb.nonNullable.group(
     {
@@ -38,11 +38,27 @@ export class Register {
       return;
     }
 
+    this.errorMessage.set('');
+
     const { userName, email, password } = this.registerForm.getRawValue();
 
     this.authService.register({ userName, email, password }).subscribe({
-      next: () => this.router.navigateByUrl('/login'),
-      error: (err) => this.validationErrors.set(err),
+      next: () => {
+        this.authService.getUserInfo().subscribe({
+          next: () => this.router.navigateByUrl('/'),
+          error: () => {
+            this.authService.logout();
+            this.errorMessage.set('Your account was created, but sign-in failed. Please log in.');
+          },
+        });
+      },
+      error: (error) => {
+        this.errorMessage.set(
+          typeof error.error === 'string'
+            ? error.error
+            : 'Registration failed. Please check your details and try again.',
+        );
+      },
     });
   }
 }

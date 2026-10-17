@@ -1,9 +1,7 @@
 <nav class="border-b border-slate-200 bg-white">
   <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-
     <!-- Logo -->
     <a routerLink="/" class="flex items-center gap-3 text-slate-800">
-
       <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800">
         <svg
           class="h-5 w-5 text-white"
@@ -17,81 +15,140 @@
           <path d="M5 12.5l4 4L19 7" />
         </svg>
       </div>
-
-      <span class="font-sans text-xl font-semibold tracking-tight">
-        HabitTracker
-      </span>
+      <span class="font-sans text-xl font-semibold tracking-tight">HabitTracker</span>
     </a>
 
-    <!-- Navigation -->
+    <!-- Desktop Navigation -->
     <div class="hidden items-center gap-8 md:flex">
-
       <a
-        routerLink="/home"
+        routerLink="/"
         routerLinkActive="text-slate-900"
         [routerLinkActiveOptions]="{ exact: true }"
         class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
       >
         Home
       </a>
-
-      <a
-        routerLink="/habits"
-        routerLinkActive="text-slate-900"
-        class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
-      >
-        Habits
-      </a>
-
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="text-slate-900"
-        class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
-      >
-        Dashboard
-      </a>
-
     </div>
 
-    <!-- Authentication -->
+    <!-- Desktop Authentication -->
     <div class="hidden items-center gap-3 md:flex">
+      @if (currentUser()) {
+        <a
+          routerLink="/"
+          class="flex h-10 items-center gap-2 rounded-lg px-4 text-base font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+          </svg>
+          <span>Profile</span>
+        </a>
 
-      <a
-        routerLink="/login"
-        class="flex h-10 items-center rounded-lg px-4
-               text-base font-medium text-slate-600
-               transition hover:bg-slate-100 hover:text-slate-900"
-      >
-        Login
-      </a>
+        <button
+          type="button"
+          (click)="logout()"
+          class="flex h-10 items-center rounded-lg px-4 text-base font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        >
+          Logout
+        </button>
+      } @else {
+        <a
+          routerLink="/login"
+          class="flex h-10 items-center rounded-lg px-4 text-base font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        >
+          Login
+        </a>
 
-      <a
-        routerLink="/register"
-        class="flex h-10 items-center rounded-lg
-               bg-slate-800 px-5
-               text-base font-medium text-white
-               transition hover:bg-slate-700"
-      >
-        Register
-      </a>
-
+        <a
+          routerLink="/register"
+          class="flex h-10 items-center rounded-lg bg-slate-800 px-5 text-base font-medium text-white transition hover:bg-slate-700"
+        >
+          Register
+        </a>
+      }
     </div>
 
-    <!-- Mobile -->
+    <!-- Mobile Menu Button -->
     <button
       type="button"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="isMenuOpen()"
+      aria-label="Toggle navigation menu"
       class="text-slate-600 md:hidden"
     >
-      <svg
-        class="h-6 w-6"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
+      @if (isMenuOpen()) {
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      } @else {
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      }
     </button>
-
   </div>
+
+  <!-- Mobile Menu -->
+  @if (isMenuOpen()) {
+    <div class="border-t border-slate-200 px-6 py-4 md:hidden">
+      <div class="flex flex-col gap-2">
+        <a
+          routerLink="/"
+          (click)="closeMenu()"
+          routerLinkActive="bg-slate-100 text-slate-900"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="rounded-lg px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+        >
+          Home
+        </a>
+
+        @if (currentUser()) {
+          <a
+            routerLink="/"
+            (click)="closeMenu()"
+            class="flex items-center gap-2 rounded-lg px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+            </svg>
+            Profile
+          </a>
+
+          <button
+            type="button"
+            (click)="logout(); closeMenu()"
+            class="rounded-lg px-4 py-3 text-left font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            Logout
+          </button>
+        } @else {
+          <a
+            routerLink="/login"
+            (click)="closeMenu()"
+            class="rounded-lg px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            Login
+          </a>
+
+          <a
+            routerLink="/register"
+            (click)="closeMenu()"
+            class="rounded-lg bg-slate-800 px-4 py-3 text-center font-medium text-white transition hover:bg-slate-700"
+          >
+            Register
+          </a>
+        }
+      </div>
+    </div>
+  }
 </nav>

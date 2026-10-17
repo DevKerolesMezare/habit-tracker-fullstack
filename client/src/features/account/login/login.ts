@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
@@ -15,6 +16,8 @@ export class Login {
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
 
+  errorMessage = signal('');
+
   returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/';
 
   loginForm = this.fb.nonNullable.group({
@@ -28,11 +31,24 @@ export class Login {
       return;
     }
 
+    this.errorMessage.set('');
+
     this.authService.login(this.loginForm.getRawValue()).subscribe({
       next: () => {
         this.authService.getUserInfo().subscribe({
           next: () => this.router.navigateByUrl(this.returnUrl),
+          error: () => {
+            this.authService.logout();
+            this.errorMessage.set('Login failed. Please try again.');
+          },
         });
+      },
+      error: (error) => {
+        this.errorMessage.set(
+          typeof error.error === 'string'
+            ? error.error
+            : 'Invalid email or password.',
+        );
       },
     });
   }

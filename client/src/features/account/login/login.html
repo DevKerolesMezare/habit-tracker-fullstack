@@ -1,4 +1,4 @@
-```html
+
 <div class="min-h-[calc(100vh-5rem)] bg-slate-50">
   <div class="flex min-h-[calc(100vh-5rem)] items-center justify-center px-6">
     <div class="w-full max-w-lg">
@@ -8,6 +8,12 @@
             <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
             <p class="mt-2 text-base text-slate-500">Sign in to continue to HabitTracker</p>
           </div>
+
+          @if (errorMessage()) {
+            <p class="mb-5 rounded-lg bg-red-50 p-3 text-sm text-red-600" role="alert">
+              {{ errorMessage() }}
+            </p>
+          }
 
           <div class="mb-5">
             <label for="email" class="mb-2 block text-sm font-medium text-slate-700">
@@ -28,9 +34,7 @@
               "
             />
 
-            @if (
-              loginForm.controls.email.touched && loginForm.controls.email.hasError('required')
-            ) {
+            @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
               <p class="mt-1 text-sm text-red-500">Email is required.</p>
             }
 
@@ -97,4 +101,3 @@
     </div>
   </div>
 </div>
-```

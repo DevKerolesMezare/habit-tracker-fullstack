@@ -1,16 +1,16 @@
+
 import { inject, Service, signal } from '@angular/core';
-import { environment } from '../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
-import { AuthResponse, Login, Register, UserInfo } from '../../shared/models/user';
 import { tap } from 'rxjs';
+
+import { environment } from '../../environments/environment.development';
+import { AuthResponse, Login, Register, UserInfo } from '../../shared/models/user';
 
 @Service()
 export class Auth {
-  value(value: any) {
-    throw new Error('Method not implemented.');
-  }
-  baseUrl = environment.apiUrl;
+  private baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
+
   currentUser = signal<UserInfo | null>(null);
 
   login(login: Login) {

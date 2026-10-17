@@ -8,6 +8,12 @@
             <p class="mt-2 text-base text-slate-500">Sign up to start using HabitTracker</p>
           </div>
 
+          @if (errorMessage()) {
+            <p class="mb-5 rounded-lg bg-red-50 p-3 text-sm text-red-600" role="alert">
+              {{ errorMessage() }}
+            </p>
+          }
+
           <!-- Username -->
           <div class="mb-5">
             <label for="userName" class="mb-2 block text-sm font-medium text-slate-700">
