@@ -12,4 +12,6 @@ public partial class Reminder
     public bool? IsActive { get; set; }
 
     public virtual Habit Habit { get; set; } = null!;
+
+    public TimeOnly ReminderTime { get; set; }
 }

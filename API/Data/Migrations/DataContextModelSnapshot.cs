@@ -158,6 +158,9 @@ namespace API.Data.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<TimeOnly>("ReminderTime")
+                        .HasColumnType("time");
+
                     b.HasKey("ReminderId")
                         .HasName("PK__Reminder__01A830A79BBE095C");
 
