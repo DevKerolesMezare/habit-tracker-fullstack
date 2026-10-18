@@ -8,5 +8,9 @@ export const routes: Routes = [
   { path: '', component: Home, title: 'Home' },
   { path: 'login', component: Login, title: 'Login' },
   { path: 'register', component: Register, title: 'Register' },
+  {
+    path: 'habits',
+    loadChildren: () => import('../features/habits/habits.routes').then((m) => m.HABITS_ROUTES),
+  },
   { path: '**', redirectTo: '' },
 ];

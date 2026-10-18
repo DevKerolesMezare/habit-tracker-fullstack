@@ -1,0 +1,80 @@
+<form [formGroup]="habitForm" (ngSubmit)="onSubmit()" class="space-y-6">
+  <div>
+    <label for="habitName" class="mb-2 block text-sm font-semibold text-slate-700">
+      Habit Name
+    </label>
+    <input
+      id="habitName"
+      type="text"
+      formControlName="habitName"
+      placeholder="e.g. Read for 20 minutes"
+      class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+    />
+    @if (habitForm.controls.habitName.touched && habitForm.controls.habitName.invalid) {
+      <p class="mt-2 text-sm text-red-600">
+        @if (habitForm.controls.habitName.hasError('required')) {
+          Habit name is required.
+        } @else if (habitForm.controls.habitName.hasError('maxlength')) {
+          Habit name cannot exceed 150 characters.
+        }
+      </p>
+    }
+  </div>
+
+  <div>
+    <label for="description" class="mb-2 block text-sm font-semibold text-slate-700">
+      Description
+      <span class="ml-1 font-normal text-slate-400">(Optional)</span>
+    </label>
+    <textarea
+      id="description"
+      formControlName="description"
+      rows="4"
+      placeholder="What do you want to achieve with this habit?"
+      class="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+    ></textarea>
+    @if (
+      habitForm.controls.description.touched && habitForm.controls.description.hasError('maxlength')
+    ) {
+      <p class="mt-2 text-sm text-red-600">Description cannot exceed 350 characters.</p>
+    }
+  </div>
+
+  <div>
+    <label for="frequencyTypeId" class="mb-2 block text-sm font-semibold text-slate-700">
+      Frequency
+    </label>
+    <select
+      id="frequencyTypeId"
+      formControlName="frequencyTypeId"
+      class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+    >
+      <option [ngValue]="null" disabled>Select frequency</option>
+
+      @for (type of frequencyTypes(); track type.frequencyTypeId) {
+        <option [ngValue]="type.frequencyTypeId">
+          {{ type.frequencyName }}
+        </option>
+      }
+    </select>
+    @if (habitForm.controls.frequencyTypeId.touched && habitForm.controls.frequencyTypeId.invalid) {
+      <p class="mt-2 text-sm text-red-600">Please select a frequency.</p>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
+    <button
+      type="submit"
+      [disabled]="isSubmitting()"
+      class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-5 py-3.5 font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {{ isSubmitting() ? 'Saving...' : habit() ? 'Update Habit' : 'Create Habit' }}
+    </button>
+  </div>
+</form>

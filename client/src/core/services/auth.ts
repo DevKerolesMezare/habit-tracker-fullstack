@@ -1,7 +1,6 @@
-
 import { inject, Service, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
 import { AuthResponse, Login, Register, UserInfo } from '../../shared/models/user';
@@ -33,6 +32,21 @@ export class Auth {
     return this.http.get<UserInfo>(this.baseUrl + 'Auth/user-info').pipe(
       tap((user) => {
         this.currentUser.set(user);
+      }),
+    );
+  }
+
+  restoreSession() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      return of(null);
+    }
+
+    return this.getUserInfo().pipe(
+      catchError(() => {
+        this.logout();
+        return of(null);
       }),
     );
   }
