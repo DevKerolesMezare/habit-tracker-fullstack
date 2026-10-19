@@ -3,6 +3,8 @@ using API.Data.Models;
 using API.DTOs.HabitCompletion;
 using API.Extensions;
 using API.Repositories.Interfaces;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,6 +77,9 @@ public class HabitCompletionsController(
 
         var completionDate = dto.CompletionDate.Value;
 
+        if (completionDate > DateOnly.FromDateTime(DateTime.Today))
+            return BadRequest("CompletionDate cannot be in the future.");
+
         // Prevent duplicate completions for the same habit and date.
         var exists = await completionRepository.ExistsForDateAsync(
             habitId, completionDate);
@@ -88,11 +93,19 @@ public class HabitCompletionsController(
             StatusId = status.StatusId,
             Status = status,
             CompletionDate = completionDate,
-            Notes = dto.Notes
+            Notes = NormalizeNotes(dto.Notes)
         };
 
         habitCompletionRepository.Add(completion);
-        await habitCompletionRepository.SaveChangesAsync();
+        try
+        {
+            await habitCompletionRepository.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception)
+            when (IsDuplicateCompletionDate(exception))
+        {
+            return Conflict("Completion already exists for this date.");
+        }
 
         return CreatedAtAction(
             nameof(GetCompletion),
@@ -122,13 +135,16 @@ public class HabitCompletionsController(
         if (dto.CompletionDate is null)
             return BadRequest("CompletionDate is required.");
 
+        var completionDate = dto.CompletionDate.Value;
+
+        if (completionDate > DateOnly.FromDateTime(DateTime.Today))
+            return BadRequest("CompletionDate cannot be in the future.");
+
         var status = await statusRepository.GetAsync(
             s => s.StatusId == dto.StatusId);
 
         if (status is null)
             return BadRequest("Invalid StatusId.");
-
-        var completionDate = dto.CompletionDate.Value;
 
         // Exclude the current record when checking for duplicates.
         var exists = await completionRepository.ExistsForDateAsync(
@@ -139,9 +155,17 @@ public class HabitCompletionsController(
 
         completion.StatusId = dto.StatusId;
         completion.CompletionDate = completionDate;
-        completion.Notes = dto.Notes;
+        completion.Notes = NormalizeNotes(dto.Notes);
 
-        await habitCompletionRepository.SaveChangesAsync();
+        try
+        {
+            await habitCompletionRepository.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception)
+            when (IsDuplicateCompletionDate(exception))
+        {
+            return Conflict("Completion already exists for this date.");
+        }
 
         return NoContent();
     }
@@ -187,5 +211,23 @@ public class HabitCompletionsController(
             return NotFound();
 
         return Ok(completion.ToDto());
+    }
+
+    private static string? NormalizeNotes(string? notes)
+    {
+        var normalizedNotes = notes?.Trim();
+        return string.IsNullOrEmpty(normalizedNotes) ? null : normalizedNotes;
+    }
+
+    private static bool IsDuplicateCompletionDate(
+        DbUpdateException exception)
+    {
+        return exception.GetBaseException() is SqlException
+        {
+            Number: 2601 or 2627
+        } sqlException &&
+        sqlException.Message.Contains(
+            "uq_Habit_CompletionDate",
+            StringComparison.OrdinalIgnoreCase);
     }
 }

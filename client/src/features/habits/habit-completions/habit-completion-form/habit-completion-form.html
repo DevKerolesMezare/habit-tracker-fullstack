@@ -1,0 +1,83 @@
+<form [formGroup]="completionForm" (ngSubmit)="onSubmit()" class="space-y-5">
+  <div>
+    <label for="completionDate" class="mb-2 block text-sm font-medium text-slate-700">
+      Completion Date
+    </label>
+    <input
+      id="completionDate"
+      type="date"
+      formControlName="completionDate"
+      [max]="today"
+      class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+    />
+    @if (
+      completionForm.controls.completionDate.touched &&
+      completionForm.controls.completionDate.invalid
+    ) {
+      <p class="mt-1 text-sm text-red-600">
+        {{
+          completionForm.controls.completionDate.hasError('required')
+            ? 'Completion date is required.'
+            : 'Completion date cannot be in the future.'
+        }}
+      </p>
+    }
+  </div>
+
+  <div>
+    <label for="statusId" class="mb-2 block text-sm font-medium text-slate-700"> Status </label>
+    <select
+      id="statusId"
+      formControlName="statusId"
+      class="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+    >
+      <option [ngValue]="null" disabled>Select status</option>
+      @for (status of statuses(); track status.statusId) {
+        <option [ngValue]="status.statusId">{{ status.statusName }}</option>
+      }
+    </select>
+    @if (completionForm.controls.statusId.touched && completionForm.controls.statusId.invalid) {
+      <p class="mt-1 text-sm text-red-600">Please select a status.</p>
+    }
+  </div>
+
+  <div>
+    <label for="notes" class="mb-2 block text-sm font-medium text-slate-700">
+      Notes <span class="font-normal text-slate-400">(Optional)</span>
+    </label>
+    <textarea
+      id="notes"
+      formControlName="notes"
+      rows="3"
+      maxlength="350"
+      placeholder="Add notes about this completion..."
+      class="w-full resize-y rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+    ></textarea>
+    @if (
+      completionForm.controls.notes.touched && completionForm.controls.notes.hasError('maxlength')
+    ) {
+      <p class="mt-1 text-sm text-red-600">Notes cannot exceed 350 characters.</p>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="text-sm text-red-600">{{ errorMessage() }}</p>
+  }
+
+  <div class="flex gap-3 border-t border-slate-100 pt-5">
+    <button
+      type="button"
+      (click)="cancelled.emit()"
+      class="flex-1 rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      [disabled]="isSubmitting()"
+      class="flex-1 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {{ isSubmitting() ? 'Saving...' : completion() ? 'Update Completion' : 'Add Completion' }}
+    </button>
+  </div>
+</form>

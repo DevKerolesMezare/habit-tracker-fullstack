@@ -1,13 +1,13 @@
-
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { Habit } from '../../../shared/models/habit';
 import { FrequencyType } from '../../../shared/models/frequency-type';
 import { HabitForm } from '../habit-form/habit-form';
+import { HabitCompletionsComponent } from '../habit-completions/habit-completions';
 import { Habits } from '../../../core/services/habits';
 
 @Component({
   selector: 'app-habits-list',
-  imports: [HabitForm],
+  imports: [HabitForm, HabitCompletionsComponent],
   templateUrl: './habits-list.html',
   styleUrl: './habits-list.css',
 })
@@ -20,13 +20,14 @@ export class HabitsList implements OnInit {
   errorMessage = signal('');
   isFormOpen = signal(false);
   selectedHabit = signal<Habit | null>(null);
+  expandedHabitId = signal<number | null>(null);
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadFrequencyTypes();
     this.loadHabits();
   }
 
-  loadFrequencyTypes() {
+  loadFrequencyTypes(): void {
     this.habitsService.getFrequencyTypes().subscribe({
       next: (types) => this.frequencyTypes.set(types),
     });
@@ -34,13 +35,11 @@ export class HabitsList implements OnInit {
 
   getFrequencyName(id: number): string {
     return (
-      this.frequencyTypes().find(
-        (type) => type.frequencyTypeId === id,
-      )?.frequencyName ?? 'Unknown'
+      this.frequencyTypes().find((type) => type.frequencyTypeId === id)?.frequencyName ?? 'Unknown'
     );
   }
 
-  loadHabits() {
+  loadHabits(): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
@@ -56,33 +55,43 @@ export class HabitsList implements OnInit {
     });
   }
 
-  openCreateForm() {
+  openCreateForm(): void {
     this.selectedHabit.set(null);
     this.isFormOpen.set(true);
   }
 
-  openEditForm(habit: Habit) {
+  openEditForm(habit: Habit): void {
     this.selectedHabit.set(habit);
     this.isFormOpen.set(true);
   }
 
-  closeForm() {
+  closeForm(): void {
     this.isFormOpen.set(false);
     this.selectedHabit.set(null);
   }
 
-  onHabitSaved() {
+  onHabitSaved(): void {
     this.closeForm();
     this.loadHabits();
   }
 
-  archiveHabit(id: number) {
+  toggleCompletions(habitId: number): void {
+    this.expandedHabitId.update((currentId) => (currentId === habitId ? null : habitId));
+  }
+
+  archiveHabit(id: number): void {
     if (!confirm('Are you sure you want to archive this habit?')) {
       return;
     }
 
     this.habitsService.archiveHabit(id).subscribe({
-      next: () => this.loadHabits(),
+      next: () => {
+        if (this.expandedHabitId() === id) {
+          this.expandedHabitId.set(null);
+        }
+
+        this.loadHabits();
+      },
       error: () => {
         this.errorMessage.set('Failed to archive habit. Please try again.');
       },

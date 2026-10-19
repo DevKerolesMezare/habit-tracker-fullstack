@@ -1,10 +1,10 @@
-
 import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { environment } from '../../environments/environment.development';
 import { Habit, CreateHabit, UpdateHabit } from '../../shared/models/habit';
 import { FrequencyType } from '../../shared/models/frequency-type';
+import { Status } from '../../shared/models/status';
 
 @Service()
 export class Habits {
@@ -35,8 +35,10 @@ export class Habits {
 
   // Lookup data
   getFrequencyTypes() {
-    return this.http.get<FrequencyType[]>(
-      `${this.lookupsUrl}/frequency-types`
-    );
+    return this.http.get<FrequencyType[]>(`${this.lookupsUrl}/frequency-types`);
+  }
+
+  getStatuses() {
+    return this.http.get<Status[]>(`${this.lookupsUrl}/statuses`);
   }
 }

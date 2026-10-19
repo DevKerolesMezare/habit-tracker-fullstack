@@ -1,0 +1,76 @@
+<div class="space-y-5">
+  <div class="flex items-center justify-between gap-3">
+    <h2 class="text-lg font-semibold text-slate-800">
+      Habit Completions
+    </h2>
+
+    <button
+      type="button"
+      (click)="openCreateForm()"
+      class="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+    >
+      Add Completion
+    </button>
+  </div>
+
+  @if (isFormOpen()) {
+    <div class="rounded-xl border border-slate-200 p-5">
+      <app-habit-completion-form
+        [habitId]="habitId()"
+        [completion]="selectedCompletion()"
+        (saved)="onSaved()"
+        (cancelled)="closeForm()"
+      />
+    </div>
+  }
+
+  @if (isLoading()) {
+    <p class="text-sm text-slate-500">Loading completions...</p>
+  } @else if (errorMessage()) {
+    <p class="text-sm text-red-600">{{ errorMessage() }}</p>
+  } @else if (completions().length === 0) {
+    <p class="text-sm text-slate-500">No completions recorded yet.</p>
+  } @else {
+    <div class="space-y-3">
+      @for (completion of completions(); track completion.completionId) {
+        <div
+          class="flex items-start justify-between gap-4 rounded-xl border border-slate-200 p-4"
+        >
+          <div class="min-w-0">
+            <p class="font-medium text-slate-800">
+              {{ completion.statusName }}
+            </p>
+
+            <p class="mt-1 text-sm text-slate-500">
+              {{ completion.completionDate }}
+            </p>
+
+            @if (completion.notes) {
+              <p class="mt-2 text-sm text-slate-600">
+                {{ completion.notes }}
+              </p>
+            }
+          </div>
+
+          <div class="flex shrink-0 gap-3">
+            <button
+              type="button"
+              (click)="openEditForm(completion)"
+              class="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              (click)="deleteCompletion(completion)"
+              class="text-sm font-semibold text-red-600 hover:text-red-800"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
