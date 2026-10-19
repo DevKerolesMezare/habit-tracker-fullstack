@@ -113,13 +113,26 @@ public class HabitsController(
         if (habit is null)
             return NotFound();
 
+        var habitName = dto.HabitName.Trim();
+        var normalizedHabitName = habitName.ToLower();
+
+        // Prevent duplicate active habits for the same user.
+        var existingHabit = await repository.GetAsync(
+            h => h.UserId == currentUserId &&
+                 h.HabitId != id &&
+                 h.HabitName.ToLower() == normalizedHabitName &&
+                 h.IsArchived != true);
+
+        if (existingHabit is not null)
+            return Conflict("You already have a habit with this name.");
+
         var frequency = await frequencyRepository.GetAsync(
             f => f.FrequencyTypeId == dto.FrequencyTypeId);
 
         if (frequency is null)
             return BadRequest("Invalid FrequencyTypeId.");
 
-        habit.HabitName = dto.HabitName;
+        habit.HabitName = habitName;
         habit.Description = dto.Description;
         habit.FrequencyTypeId = dto.FrequencyTypeId;
 
@@ -127,7 +140,7 @@ public class HabitsController(
 
         return NoContent();
     }
-    
+
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> ArchiveHabit(int id)

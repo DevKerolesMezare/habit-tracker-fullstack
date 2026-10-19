@@ -71,7 +71,7 @@
   <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
     <button
       type="submit"
-      [disabled]="isSubmitting()"
+      [disabled]="isSubmitting() || (habit() !== null && !hasChanges())"
       class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-5 py-3.5 font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {{ isSubmitting() ? 'Saving...' : habit() ? 'Update Habit' : 'Create Habit' }}
