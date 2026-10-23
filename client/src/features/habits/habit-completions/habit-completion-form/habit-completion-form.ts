@@ -29,6 +29,8 @@ export class HabitCompletionForm {
   cancelled = output<void>();
 
   statuses = signal<Status[]>([]);
+  isLoadingStatuses = signal(true);
+  statusLoadError = signal('');
   isSubmitting = signal(false);
   errorMessage = signal('');
 
@@ -55,10 +57,7 @@ export class HabitCompletionForm {
   }
 
   constructor() {
-    this.habitsService.getStatuses().subscribe({
-      next: (statuses) => this.statuses.set(statuses),
-      error: () => this.errorMessage.set('Failed to load statuses.'),
-    });
+    this.loadStatuses();
 
     effect(() => {
       const completion = this.completion();
@@ -71,8 +70,26 @@ export class HabitCompletionForm {
     });
   }
 
+  loadStatuses(): void {
+    this.isLoadingStatuses.set(true);
+    this.statusLoadError.set('');
+    this.habitsService.getStatuses().subscribe({
+      next: (statuses) => {
+        this.statuses.set(statuses);
+        this.isLoadingStatuses.set(false);
+        if (statuses.length === 0) {
+          this.statusLoadError.set('No completion statuses are available. Please try again later.');
+        }
+      },
+      error: () => {
+        this.isLoadingStatuses.set(false);
+        this.statusLoadError.set('Failed to load statuses. Please try again.');
+      },
+    });
+  }
+
   onSubmit(): void {
-    if (this.completionForm.invalid || this.isSubmitting()) {
+    if (this.completionForm.invalid || this.isSubmitting() || this.isLoadingStatuses()) {
       this.completionForm.markAllAsTouched();
       return;
     }

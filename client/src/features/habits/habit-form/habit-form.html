@@ -14,6 +14,8 @@
       <p class="mt-2 text-sm text-red-600">
         @if (habitForm.controls.habitName.hasError('required')) {
           Habit name is required.
+        } @else if (habitForm.controls.habitName.hasError('pattern')) {
+          Habit name cannot contain only spaces.
         } @else if (habitForm.controls.habitName.hasError('maxlength')) {
           Habit name cannot exceed 150 characters.
         }
@@ -65,16 +67,21 @@
   @if (errorMessage()) {
     <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage() }}
+      @if (!isSubmitting() && frequencyTypes().length === 0) {
+        <button type="button" (click)="loadFrequencyTypes()" class="ml-2 font-semibold underline">
+          Retry
+        </button>
+      }
     </div>
   }
 
   <div class="flex flex-col gap-3 border-t border-slate-100 pt-5">
     <button
       type="submit"
-      [disabled]="isSubmitting() || (habit() !== null && !hasChanges())"
+      [disabled]="isSubmitting() || isLoadingFrequencyTypes() || frequencyTypes().length === 0 || (habit() !== null && !hasChanges())"
       class="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-5 py-3.5 font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {{ isSubmitting() ? 'Saving...' : habit() ? 'Update Habit' : 'Create Habit' }}
+      {{ isLoadingFrequencyTypes() ? 'Loading frequencies...' : isSubmitting() ? 'Saving...' : habit() ? 'Update Habit' : 'Create Habit' }}
     </button>
   </div>
 </form>

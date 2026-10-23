@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit, input, output, effect } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Habit, CreateHabit, UpdateHabit } from '../../../shared/models/habit';
 import { FrequencyType } from '../../../shared/models/frequency-type';
@@ -18,11 +19,12 @@ export class HabitForm implements OnInit {
   saved = output<void>();
 
   frequencyTypes = signal<FrequencyType[]>([]);
+  isLoadingFrequencyTypes = signal(true);
   isSubmitting = signal(false);
   errorMessage = signal('');
 
   habitForm = this.fb.group({
-    habitName: ['', [Validators.required, Validators.maxLength(150)]],
+    habitName: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(150)]],
     description: ['', Validators.maxLength(350)],
     frequencyTypeId: [null as number | null, Validators.required],
   });
@@ -65,14 +67,29 @@ export class HabitForm implements OnInit {
 
 
   ngOnInit() {
+    this.loadFrequencyTypes();
+  }
+
+  loadFrequencyTypes(): void {
+    this.isLoadingFrequencyTypes.set(true);
+    this.errorMessage.set('');
     this.habitsService.getFrequencyTypes().subscribe({
-      next: (types) => this.frequencyTypes.set(types),
-      error: () => this.errorMessage.set('Failed to load frequency types.'),
+      next: (types) => {
+        this.frequencyTypes.set(types);
+        this.isLoadingFrequencyTypes.set(false);
+        if (types.length === 0) {
+          this.errorMessage.set('No frequency options are available. Please try again later.');
+        }
+      },
+      error: () => {
+        this.isLoadingFrequencyTypes.set(false);
+        this.errorMessage.set('Failed to load frequency types. Please try again.');
+      },
     });
   }
 
   onSubmit() {
-    if (this.habitForm.invalid || this.isSubmitting()) {
+    if (this.habitForm.invalid || this.isSubmitting() || this.isLoadingFrequencyTypes()) {
       this.habitForm.markAllAsTouched();
       return;
     }
@@ -99,15 +116,18 @@ export class HabitForm implements OnInit {
       this.saved.emit();
     };
 
-    const handleError = (error: any) => {
+    const handleError = (error: HttpErrorResponse) => {
       this.isSubmitting.set(false);
       this.errorMessage.set(
-        typeof error.error === 'string' ? error.error : 'Failed to save habit. Please try again.',
+        typeof error.error === 'string' && error.error.trim()
+          ? error.error
+          : 'Failed to save habit. Please try again.',
       );
     };
 
     if (habit) {
-      this.habitsService.updateHabit(habit.habitId, data).subscribe({
+      const updateData: UpdateHabit = data;
+      this.habitsService.updateHabit(habit.habitId, updateData).subscribe({
         next: handleSuccess,
         error: handleError,
       });

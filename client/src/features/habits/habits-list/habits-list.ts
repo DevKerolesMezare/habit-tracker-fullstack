@@ -4,10 +4,11 @@ import { FrequencyType } from '../../../shared/models/frequency-type';
 import { HabitForm } from '../habit-form/habit-form';
 import { HabitCompletionsComponent } from '../habit-completions/habit-completions';
 import { Habits } from '../../../core/services/habits';
+import { HabitReminders } from '../reminders/reminders';
 
 @Component({
   selector: 'app-habits-list',
-  imports: [HabitForm, HabitCompletionsComponent],
+  imports: [HabitForm, HabitCompletionsComponent, HabitReminders],
   templateUrl: './habits-list.html',
   styleUrl: './habits-list.css',
 })
@@ -16,11 +17,15 @@ export class HabitsList implements OnInit {
 
   habits = signal<Habit[]>([]);
   frequencyTypes = signal<FrequencyType[]>([]);
+  frequencyTypesError = signal('');
   isLoading = signal(true);
   errorMessage = signal('');
   isFormOpen = signal(false);
   selectedHabit = signal<Habit | null>(null);
-  expandedHabitId = signal<number | null>(null);
+  expandedSection = signal<{
+    habitId: number;
+    section: 'completions' | 'reminders';
+  } | null>(null);
 
   ngOnInit(): void {
     this.loadFrequencyTypes();
@@ -28,8 +33,10 @@ export class HabitsList implements OnInit {
   }
 
   loadFrequencyTypes(): void {
+    this.frequencyTypesError.set('');
     this.habitsService.getFrequencyTypes().subscribe({
       next: (types) => this.frequencyTypes.set(types),
+      error: () => this.frequencyTypesError.set('Failed to load frequency types.'),
     });
   }
 
@@ -75,8 +82,17 @@ export class HabitsList implements OnInit {
     this.loadHabits();
   }
 
-  toggleCompletions(habitId: number): void {
-    this.expandedHabitId.update((currentId) => (currentId === habitId ? null : habitId));
+  isExpanded(habitId: number, section: 'completions' | 'reminders'): boolean {
+    const expandedSection = this.expandedSection();
+    return expandedSection?.habitId === habitId && expandedSection.section === section;
+  }
+
+  toggleSection(habitId: number, section: 'completions' | 'reminders'): void {
+    this.expandedSection.update((currentSection) =>
+      currentSection?.habitId === habitId && currentSection.section === section
+        ? null
+        : { habitId, section },
+    );
   }
 
   archiveHabit(id: number): void {
@@ -86,8 +102,8 @@ export class HabitsList implements OnInit {
 
     this.habitsService.archiveHabit(id).subscribe({
       next: () => {
-        if (this.expandedHabitId() === id) {
-          this.expandedHabitId.set(null);
+        if (this.expandedSection()?.habitId === id) {
+          this.expandedSection.set(null);
         }
 
         this.loadHabits();
