@@ -60,13 +60,9 @@ public class HabitsController(
             return Unauthorized();
 
         var habitName = dto.HabitName.Trim();
-        var normalizedHabitName = habitName.ToLower();
 
-        // Prevent duplicate active habits for the same user.
-        var existingHabit = await repository.GetAsync(
-            h => h.UserId == currentUserId &&
-                 h.HabitName.ToLower() == normalizedHabitName &&
-                 h.IsArchived != true);
+        var existingHabit = await FindDuplicateActiveHabitAsync(
+            currentUserId, habitName);
 
         if (existingHabit is not null)
             return Conflict("You already have a habit with this name.");
@@ -114,14 +110,9 @@ public class HabitsController(
             return NotFound();
 
         var habitName = dto.HabitName.Trim();
-        var normalizedHabitName = habitName.ToLower();
 
-        // Prevent duplicate active habits for the same user.
-        var existingHabit = await repository.GetAsync(
-            h => h.UserId == currentUserId &&
-                 h.HabitId != id &&
-                 h.HabitName.ToLower() == normalizedHabitName &&
-                 h.IsArchived != true);
+        var existingHabit = await FindDuplicateActiveHabitAsync(
+            currentUserId, habitName, id);
 
         if (existingHabit is not null)
             return Conflict("You already have a habit with this name.");
@@ -166,5 +157,19 @@ public class HabitsController(
         return NoContent();
     }
 
+    private Task<Habit?> FindDuplicateActiveHabitAsync(
+        int userId,
+        string habitName,
+        int? excludedHabitId = null)
+    {
+        var normalizedHabitName = habitName.ToLower();
+
+        return repository.GetAsync(
+            h => h.UserId == userId &&
+                 h.HabitName.ToLower() == normalizedHabitName &&
+                 h.IsArchived != true &&
+                 (!excludedHabitId.HasValue ||
+                  h.HabitId != excludedHabitId.Value));
+    }
 
 }
