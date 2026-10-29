@@ -17,8 +17,10 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddCors();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IHabitCompletionRepository), typeof(HabitCompletionRepository));
+builder.Services.AddScoped(typeof(IDashboardRepository), typeof(DashboardRepository));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

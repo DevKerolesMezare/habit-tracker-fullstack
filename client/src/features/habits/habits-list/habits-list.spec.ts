@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Habits } from '../../../core/services/habits';
 import { HabitsList } from './habits-list';
 
@@ -6,7 +7,7 @@ describe('HabitsList sections', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HabitsList],
-      providers: [{ provide: Habits, useValue: {} }],
+      providers: [{ provide: Habits, useValue: {} }, provideRouter([])],
     }).compileComponents();
   });
 

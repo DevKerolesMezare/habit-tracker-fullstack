@@ -5,6 +5,7 @@ import { HabitForm } from '../habit-form/habit-form';
 import { HabitCompletionsComponent } from '../habit-completions/habit-completions';
 import { Habits } from '../../../core/services/habits';
 import { HabitReminders } from '../reminders/reminders';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-habits-list',
@@ -14,6 +15,7 @@ import { HabitReminders } from '../reminders/reminders';
 })
 export class HabitsList implements OnInit {
   private habitsService = inject(Habits);
+  private route = inject(ActivatedRoute);
 
   habits = signal<Habit[]>([]);
   frequencyTypes = signal<FrequencyType[]>([]);
@@ -53,6 +55,10 @@ export class HabitsList implements OnInit {
     this.habitsService.getHabits().subscribe({
       next: (habits) => {
         this.habits.set(habits);
+        const habitId = Number(this.route.snapshot.queryParamMap.get('habitId'));
+        if (Number.isSafeInteger(habitId) && habits.some((habit) => habit.habitId === habitId)) {
+          this.expandedSection.set({ habitId, section: 'completions' });
+        }
         this.isLoading.set(false);
       },
       error: () => {

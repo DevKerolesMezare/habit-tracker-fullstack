@@ -31,6 +31,13 @@
 
       @if (currentUser()) {
         <a
+          routerLink="/dashboard"
+          routerLinkActive="text-slate-900"
+          class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
+        >
+          Dashboard
+        </a>
+        <a
           routerLink="/habits"
           routerLinkActive="text-slate-900"
           class="font-sans text-base font-medium text-slate-500 transition hover:text-slate-900"
@@ -136,6 +143,15 @@
         </a>
 
         @if (currentUser()) {
+          <a
+            routerLink="/dashboard"
+            (click)="closeMenu()"
+            routerLinkActive="bg-slate-100 text-slate-900"
+            class="rounded-lg px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+          >
+            Dashboard
+          </a>
+
           <a
             routerLink="/habits"
             (click)="closeMenu()"
