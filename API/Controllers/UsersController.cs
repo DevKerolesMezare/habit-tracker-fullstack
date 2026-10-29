@@ -11,20 +11,24 @@ namespace API.Controllers;
 [Authorize]
 public class UsersController(IGenericRepository<User> repository) : BaseApiController
 {
-    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<UserDto>>> GetUsers()
     {
-        var users = await repository.GetAllAsync();
+        if (!TryGetCurrentUserId(out var currentUserId))
+            return Unauthorized();
 
-        var usersDto = users.Select(MapToDto).ToList();
+        var users = await repository.GetAllAsync(
+            user => user.UserId == currentUserId);
 
-        return Ok(usersDto);
+        return Ok(users.Select(MapToDto).ToList());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUser(int id)
     {
+        if (!IsCurrentUser(id))
+            return Forbid();
+
         var user = await repository.GetAsync(x => x.UserId == id);
 
         if (user == null)
@@ -38,9 +42,7 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
         int id,
         UpdateUserDto updateUserDto)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(userId, out var currentUserId) || currentUserId != id)
+        if (!IsCurrentUser(id))
             return Forbid();
 
         var user = await repository.GetAsync(x => x.UserId == id);
@@ -62,9 +64,7 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(userId, out var currentUserId) || currentUserId != id)
+        if (!IsCurrentUser(id))
             return Forbid();
 
         var user = await repository.GetAsync(x => x.UserId == id);
@@ -90,5 +90,18 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
             CreatedAt = user.CreatedAt,
             IsActive = user.IsActive
         };
+    }
+
+    private bool IsCurrentUser(int userId)
+    {
+        return TryGetCurrentUserId(out var currentUserId) &&
+               currentUserId == userId;
+    }
+
+    private bool TryGetCurrentUserId(out int userId)
+    {
+        return int.TryParse(
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            out userId);
     }
 }
