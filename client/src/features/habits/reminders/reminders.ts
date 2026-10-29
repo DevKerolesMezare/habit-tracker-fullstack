@@ -3,6 +3,7 @@ import { Component, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Reminders } from '../../../core/services/reminders';
+import { getHttpErrorDetails } from '../../../core/utils/http-error';
 import { Reminder } from '../../../shared/models/reminder';
 
 @Component({
@@ -160,32 +161,13 @@ export class HabitReminders {
   }
 
   private getErrorMessage(error: HttpErrorResponse, fallback: string): string {
-    const body: unknown = error.error;
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    if (typeof body === 'object' && body !== null) {
-      const problem = body as Record<string, unknown>;
-      if (typeof problem['detail'] === 'string') {
-        return problem['detail'];
-      }
-
-      const errors = problem['errors'];
-      if (typeof errors === 'object' && errors !== null) {
-        const messages = Object.values(errors)
-          .flatMap((value) => (Array.isArray(value) ? value : [value]))
-          .filter((value): value is string => typeof value === 'string');
-        if (messages.length > 0) {
-          return messages.join(' ');
-        }
-      }
-
-      if (typeof problem['title'] === 'string') {
-        return problem['title'];
-      }
-    }
-
-    return fallback;
+    const details = getHttpErrorDetails(error);
+    return (
+      details.message ??
+      details.detail ??
+      details.validationErrors ??
+      details.title ??
+      fallback
+    );
   }
 }

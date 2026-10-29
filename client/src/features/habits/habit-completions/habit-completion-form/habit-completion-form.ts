@@ -6,6 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { getHttpErrorDetails } from '../../../../core/utils/http-error';
 import { HabitCompletion } from '../../../../shared/models/habit-completion';
 import { Status } from '../../../../shared/models/status';
 import { HabitCompletions } from '../../../../core/services/habit-completions';
@@ -136,31 +137,13 @@ export class HabitCompletionForm {
   }
 
   private getErrorMessage(error: HttpErrorResponse): string {
-    const body: unknown = error.error;
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    if (typeof body === 'object' && body !== null) {
-      const problem = body as Record<string, unknown>;
-      if (typeof problem['detail'] === 'string') {
-        return problem['detail'];
-      }
-      if (typeof problem['title'] === 'string') {
-        return problem['title'];
-      }
-
-      const errors = problem['errors'];
-      if (typeof errors === 'object' && errors !== null) {
-        const messages = Object.values(errors)
-          .flatMap((value) => (Array.isArray(value) ? value : [value]))
-          .filter((value): value is string => typeof value === 'string');
-        if (messages.length > 0) {
-          return messages.join(' ');
-        }
-      }
-    }
-
-    return 'Failed to save completion. Please try again.';
+    const details = getHttpErrorDetails(error);
+    return (
+      details.message ??
+      details.detail ??
+      details.title ??
+      details.validationErrors ??
+      'Failed to save completion. Please try again.'
+    );
   }
 }
