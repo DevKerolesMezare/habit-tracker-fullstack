@@ -69,6 +69,19 @@ describe('ProfileService', () => {
     });
   });
 
+  it('changes the password using the existing endpoint and request shape', () => {
+    const password = {
+      currentPassword: 'current-password',
+      newPassword: 'new-password',
+    };
+    service.changePassword(password).subscribe();
+
+    const request = http.expectOne(`${environment.apiUrl}Users/me/password`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(password);
+    request.flush(null);
+  });
+
   it('does not restore current user when a request completes after logout', () => {
     service.getProfile().subscribe();
     const request = http.expectOne(`${environment.apiUrl}Users/me`);

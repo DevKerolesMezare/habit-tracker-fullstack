@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using API.Data.Models;
 using API.DTOs.Auth;
 using API.Extensions;
@@ -26,16 +24,14 @@ public class AuthController(
         if (await EmailExists(email))
             return BadRequest("Email already registered.");
 
-        using var hmac = new HMACSHA512();
-
         var user = new User
         {
             UserName = registerDto.UserName.Trim(),
             Email = email,
-            PasswordHash = hmac.ComputeHash(
-                Encoding.UTF8.GetBytes(registerDto.Password)),
-            PasswordSalt = hmac.Key
+            PasswordHash = [],
+            PasswordSalt = [],
         };
+        PasswordHasher.SetPassword(user, registerDto.Password);
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
@@ -56,14 +52,7 @@ public class AuthController(
         if (user is null)
             return Unauthorized("Invalid email or password.");
 
-        using var hmac = new HMACSHA512(user.PasswordSalt);
-
-        var computedHash = hmac.ComputeHash(
-            Encoding.UTF8.GetBytes(login.Password));
-
-        // Compare hashes without an early exit on the first mismatch.
-        if (!CryptographicOperations.FixedTimeEquals(
-                computedHash, user.PasswordHash))
+        if (!PasswordHasher.VerifyPassword(user, login.Password))
         {
             return Unauthorized("Invalid email or password.");
         }

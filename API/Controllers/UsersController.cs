@@ -3,6 +3,7 @@ using API.Data.Models;
 using API.DTOs;
 using API.DTOs.User;
 using API.Repositories.Interfaces;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,6 +87,34 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
             return BadRequest("Failed to update user.");
 
         return Ok(MapToDto(user));
+    }
+
+    [HttpPut("me/password")]
+    public async Task<ActionResult> ChangePassword(
+        ChangePasswordDto changePasswordDto)
+    {
+        if (!TryGetCurrentUserId(out var currentUserId))
+            return Unauthorized();
+
+        var user = await repository.GetAsync(
+            x => x.UserId == currentUserId);
+
+        if (user == null)
+            return NotFound();
+
+        if (!PasswordHasher.VerifyPassword(user, changePasswordDto.CurrentPassword))
+            return BadRequest("Current password is incorrect.");
+
+        if (changePasswordDto.CurrentPassword == changePasswordDto.NewPassword)
+            return BadRequest("New password must be different from the current password.");
+
+        PasswordHasher.SetPassword(user, changePasswordDto.NewPassword);
+        repository.Update(user);
+
+        if (!await repository.SaveChangesAsync())
+            return BadRequest("Failed to change password.");
+
+        return NoContent();
     }
 
     [HttpDelete("{id}")]

@@ -1,13 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
+import { fieldsMatchValidator } from '../../../shared/validators/password-match.validator';
 
 @Component({
   imports: [RouterLink, ReactiveFormsModule],
@@ -29,7 +28,7 @@ export class Register {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: passwordMatchValidator },
+    { validators: fieldsMatchValidator('password', 'confirmPassword') },
   );
 
   onSubmit() {
@@ -61,10 +60,4 @@ export class Register {
       },
     });
   }
-}
-
-function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-  return control.get('password')?.value === control.get('confirmPassword')?.value
-    ? null
-    : { passwordMismatch: true };
 }

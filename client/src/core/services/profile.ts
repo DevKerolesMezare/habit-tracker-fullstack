@@ -16,6 +16,11 @@ export type UpdateProfile = {
   email: string;
 };
 
+export type ChangePassword = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 @Service()
 export class ProfileService {
   private baseUrl = environment.apiUrl + 'Users';
@@ -38,6 +43,10 @@ export class ProfileService {
     return this.http.put<UserProfile>(`${this.baseUrl}/${userId}`, profile).pipe(
       tap((updatedProfile) => this.syncCurrentUser(updatedProfile, token, sessionVersion)),
     );
+  }
+
+  changePassword(password: ChangePassword) {
+    return this.http.put<void>(`${this.baseUrl}/me/password`, password);
   }
 
   private syncCurrentUser(profile: UserInfo, token: string | null, sessionVersion: number) {

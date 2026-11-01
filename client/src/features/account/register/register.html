@@ -126,12 +126,12 @@
               [class.border-slate-300]="
                 !registerForm.controls.confirmPassword.touched ||
                 (registerForm.controls.confirmPassword.valid &&
-                  !registerForm.hasError('passwordMismatch'))
+                !registerForm.hasError('fieldsMismatch'))
               "
               [class.border-red-500]="
                 registerForm.controls.confirmPassword.touched &&
                 (registerForm.controls.confirmPassword.invalid ||
-                  registerForm.hasError('passwordMismatch'))
+                  registerForm.hasError('fieldsMismatch'))
               "
             />
 
@@ -144,7 +144,7 @@
 
             @if (
               registerForm.controls.confirmPassword.touched &&
-              registerForm.hasError('passwordMismatch')
+              registerForm.hasError('fieldsMismatch')
             ) {
               <p class="mt-1 text-sm text-red-500">Passwords do not match.</p>
             }

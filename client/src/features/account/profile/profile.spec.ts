@@ -29,7 +29,7 @@ describe('Profile', () => {
     localStorage.removeItem('token');
   });
 
-  it('renders the profile information section', () => {
+  it('coordinates the profile information and change password sections', () => {
     const request = http.expectOne(`${environment.apiUrl}Users/me`);
     request.flush({
       userId: 7,
@@ -41,5 +41,6 @@ describe('Profile', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-profile-information')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-change-password')).toBeTruthy();
   });
 });
