@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 
 @Component({
@@ -10,6 +10,7 @@ import { Auth } from '../../core/services/auth';
 })
 export class Nav {
   private authService = inject(Auth);
+  private router = inject(Router);
 
   currentUser = this.authService.currentUser;
   isMenuOpen = signal(false);
@@ -25,5 +26,6 @@ export class Nav {
   logout() {
     this.authService.logout();
     this.closeMenu();
+    return this.router.navigateByUrl('/login');
   }
 }

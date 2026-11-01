@@ -9,21 +9,20 @@ export const authGuard: CanActivateFn = () => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  if (auth.currentUser()) {
-    return true;
-  }
-
   const token = localStorage.getItem('token');
 
   if (!token) {
     return router.createUrlTree(['/login']);
   }
 
+  if (auth.currentUser()) {
+    return true;
+  }
+
   return auth.getUserInfo().pipe(
-    map(() => true),
-    catchError(() => {
-      auth.logout();
-      return of(router.createUrlTree(['/login']));
-    }),
+    map(() =>
+      auth.currentUser() ? true : router.createUrlTree(['/login']),
+    ),
+    catchError(() => of(router.createUrlTree(['/login']))),
   );
 };
