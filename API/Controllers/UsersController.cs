@@ -23,6 +23,21 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
         return Ok(users.Select(MapToDto).ToList());
     }
 
+    [HttpGet("me")]
+    public async Task<ActionResult<UserDto>> GetCurrentUser()
+    {
+        if (!TryGetCurrentUserId(out var currentUserId))
+            return Unauthorized();
+
+        var user = await repository.GetAsync(
+            x => x.UserId == currentUserId);
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(MapToDto(user));
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUser(int id)
     {
@@ -50,15 +65,27 @@ public class UsersController(IGenericRepository<User> repository) : BaseApiContr
         if (user == null)
             return NotFound();
 
-        user.UserName = updateUserDto.UserName;
-        user.Email = updateUserDto.Email;
+        var userName = updateUserDto.UserName.Trim();
+        var email = updateUserDto.Email.Trim().ToLowerInvariant();
+
+        var emailInUse = await repository.GetAsync(
+            x => x.UserId != id && x.Email.ToLower() == email);
+
+        if (emailInUse != null)
+            return Conflict("Email already registered.");
+
+        if (user.UserName == userName && user.Email == email)
+            return Ok(MapToDto(user));
+
+        user.UserName = userName;
+        user.Email = email;
 
         repository.Update(user);
 
         if (!await repository.SaveChangesAsync())
             return BadRequest("Failed to update user.");
 
-        return NoContent();
+        return Ok(MapToDto(user));
     }
 
     [HttpDelete("{id}")]

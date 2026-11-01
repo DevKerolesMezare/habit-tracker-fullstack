@@ -10,6 +10,12 @@ export const routes: Routes = [
   { path: 'login', component: Login, title: 'Login' },
   { path: 'register', component: Register, title: 'Register' },
   {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('../features/account/profile/profile').then((m) => m.Profile),
+    title: 'Profile',
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadComponent: () => import('../features/dashboard/dashboard').then((m) => m.DashboardPage),

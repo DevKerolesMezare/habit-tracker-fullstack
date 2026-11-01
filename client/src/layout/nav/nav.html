@@ -51,7 +51,7 @@
     <div class="hidden items-center gap-3 md:flex">
       @if (currentUser()) {
         <a
-          routerLink="/"
+          routerLink="/profile"
           class="flex h-10 items-center gap-2 rounded-lg px-4 text-base font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
         >
           <svg
@@ -162,7 +162,7 @@
           </a>
 
           <a
-            routerLink="/"
+            routerLink="/profile"
             (click)="closeMenu()"
             class="flex items-center gap-2 rounded-lg px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
           >
@@ -184,7 +184,7 @@
 
           <button
             type="button"
-            (click)="logout(); closeMenu()"
+            (click)="logout()"
             class="rounded-lg px-4 py-3 text-left font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
           >
             Logout
